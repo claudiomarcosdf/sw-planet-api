@@ -3,6 +3,7 @@ import static com.claudio.common.PlanetConstants.PLANET;
 import static com.claudio.common.PlanetConstants.TATOOINE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Example;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -48,6 +50,8 @@ public class PlanetRepositoryTest {
 		assertThat(sut.getName()).isEqualTo(PLANET.getName());
 		assertThat(sut.getClimate()).isEqualTo(PLANET.getClimate());
 		assertThat(sut.getTerrain()).isEqualTo(PLANET.getTerrain());
+		
+	
 	}
 	
 	/**
@@ -148,4 +152,27 @@ public class PlanetRepositoryTest {
 		
 		assertThat(response).isEmpty();
 	}
+	
+	@Test
+	public void removePlanet_WithExistingId_RemovesPlanetFromDatabase() {
+		Planet planet = testEntityManager.persistFlushFind(PLANET); //salva o planeta no H2
+		
+		planetRepository.deleteById(planet.getId()); //delete o planeta no H2
+		
+		Planet planetNotFound = testEntityManager.find(Planet.class, planet.getId());
+		
+		assertThat(planetNotFound).isNull();
+		
+	}
+	
+	@Test
+	public void removePlanet_WithUnexistingId_ThrowsException() {
+		Planet planet = testEntityManager.persistFlushFind(PLANET);
+		
+		Planet planetNotFound = testEntityManager.find(Planet.class, 99L);
+		
+		assertThrows(EmptyResultDataAccessException.class, () -> planetRepository.deleteById(99L));
+		
+		
+	}	
 }

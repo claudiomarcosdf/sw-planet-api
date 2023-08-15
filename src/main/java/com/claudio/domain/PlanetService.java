@@ -3,8 +3,11 @@ package com.claudio.domain;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+
+import com.claudio.web.GeneralExceptionHandler;
 
 @Service
 public class PlanetService {
@@ -35,7 +38,13 @@ public class PlanetService {
 	}
 
 	public void remove(Long id) {
-		planetRepository.deleteById(id);		
+		
+		   Optional<Planet> planetFindedOptional =  planetRepository.findById(id);
+		   if (planetFindedOptional.isEmpty()) {
+			   new Exception();
+		   }
+	    	   
+     	   planetRepository.deleteById(id);
 	}
 
 }
