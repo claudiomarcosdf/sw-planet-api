@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Example;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -167,12 +167,8 @@ public class PlanetRepositoryTest {
 	
 	@Test
 	public void removePlanet_WithUnexistingId_ThrowsException() {
-		Planet planet = testEntityManager.persistFlushFind(PLANET);
-		
 		Planet planetNotFound = testEntityManager.find(Planet.class, 99L);
 		
-		assertThrows(EmptyResultDataAccessException.class, () -> planetRepository.deleteById(99L));
-		
-		
+		assertThrows(InvalidDataAccessApiUsageException.class, () -> planetRepository.delete(planetNotFound));
 	}	
 }
